@@ -59,6 +59,7 @@ public class WebSecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
+        
     /**
      * Provides an AuthenticationManager bean.
      *

@@ -41,12 +41,16 @@ public class AuthController {
     public void createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest,
                                           HttpServletResponse response) throws IOException {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Incorrect username or password");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Incorrect username or password: " + e.getMessage());
+            return;
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication error: " + e.getMessage());
+            return;
         }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
         Optional<EcommerceBackend.Ecommerce.Entity.User> optionalUser = userRepository.findByEmail(userDetails.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
@@ -57,6 +61,11 @@ public class AuthController {
                     .put("token", jwt)
                     .toString()
             );
+
+            response.addHeader("Access-Control-Expose-Headers", "Authorization");
+            response.addHeader("Access-Control-Expose-Headers", "Authorization, X-PINGOTHER, Origin," +
+                    "X-Requested-Width, Content-Type, Accept, X-Custom-header");
+
             response.addHeader(HEADER_STRING, TOKEN_PREFIX + jwt);
         }
     }

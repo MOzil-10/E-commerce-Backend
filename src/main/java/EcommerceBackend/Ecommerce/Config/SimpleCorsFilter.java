@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-
-
 /**
  * SimpleCorsFilter is a servlet filter for handling Cross-Origin Resource Sharing (CORS) requests.
  * This filter sets the necessary CORS headers to allow requests from specified origins.

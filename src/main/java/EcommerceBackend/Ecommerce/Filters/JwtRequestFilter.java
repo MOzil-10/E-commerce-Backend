@@ -16,28 +16,43 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * JwtRequestFilter is a filter that intercepts incoming HTTP requests and handles JWT authentication.
+ * It extends OncePerRequestFilter to ensure it's executed only once per request.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
-
     private final JwtUtil jwtUtil;
 
+    /**
+     * Core method of the filter that processes incoming requests.
+     *
+     * @param request     the HTTP request object
+     * @param response    the HTTP response object
+     * @param filterChain the filter chain for handling the request
+     * @throws ServletException if an error occurs during servlet processing
+     * @throws IOException      if an I/O error occurs during filtering
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;
-        String username = null;
+        String email = null;
 
+        // Extract JWT token from Authorization header
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtUtil.extractUserName(token);
+            email = jwtUtil.extractUserName(token);
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+        // Check if token is valid and user is not already authenticated
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
 
+            // Validate token against user details
             if (jwtUtil.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
@@ -45,6 +60,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
+
+        // Continue filter chain
         filterChain.doFilter(request, response);
     }
 }

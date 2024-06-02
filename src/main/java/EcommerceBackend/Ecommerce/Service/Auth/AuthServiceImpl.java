@@ -32,15 +32,19 @@ public class AuthServiceImpl implements AuthService {
         user.setFullName(signUpRequest.getFullName());
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(bCryptPasswordEncoder.encode(signUpRequest.getPassword()));
-        user.setUserRole(UserRole.CUSTOMER);
+        user.setUserRole(signUpRequest.getUserRole() != null ? signUpRequest.getUserRole() : UserRole.CUSTOMER); // Set role based on request or default to CUSTOMER
 
         User createdUser = userRepository.save(user);
 
         UserDto userDto = new UserDto();
         userDto.setId(createdUser.getId());
+        userDto.setFullName(createdUser.getFullName());
+        userDto.setEmail(createdUser.getEmail());
+        userDto.setUserRole(createdUser.getUserRole());
 
         return userDto;
     }
+
 
     /**
      * Checks if a user with the given email already exists.
