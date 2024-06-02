@@ -16,6 +16,6 @@ public class Category {
 
     private String name;
 
-    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 }

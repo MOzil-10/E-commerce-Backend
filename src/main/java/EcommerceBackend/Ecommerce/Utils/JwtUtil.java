@@ -2,6 +2,7 @@ package EcommerceBackend.Ecommerce.Utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,7 +42,11 @@ public class JwtUtil {
     }
 
     public String extractUserName(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            return extractClaim(token, Claims::getSubject);
+        } catch (MalformedJwtException e) {
+            return null; // Handle malformed token gracefully
+        }
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -67,6 +72,6 @@ public class JwtUtil {
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String email = extractUserName(token);
-        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (email != null && email.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
