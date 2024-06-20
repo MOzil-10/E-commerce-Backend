@@ -15,11 +15,8 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     private Long price;
-
     private String description;
 
     @Lob
@@ -40,6 +37,7 @@ public class Product {
         productDto.setDescription(description);
         productDto.setByteImage(imageData);
         productDto.setCategoryId(category.getId());
+        productDto.setCategoryName(category.getName());
 
         return productDto;
     }
