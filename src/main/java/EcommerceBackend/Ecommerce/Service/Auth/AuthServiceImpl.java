@@ -1,7 +1,10 @@
 package EcommerceBackend.Ecommerce.Service.Auth;
 
+import EcommerceBackend.Ecommerce.Entity.Order;
+import EcommerceBackend.Ecommerce.Entity.OrderStatus;
 import EcommerceBackend.Ecommerce.Entity.User;
 import EcommerceBackend.Ecommerce.Enums.UserRole;
+import EcommerceBackend.Ecommerce.Repository.OrderRepository;
 import EcommerceBackend.Ecommerce.Repository.UserRepository;
 import EcommerceBackend.Ecommerce.dto.SignUpRequest;
 import EcommerceBackend.Ecommerce.dto.UserDto;
@@ -19,6 +22,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final OrderRepository orderRepository;
 
     /**
      * Creates a new user with the provided sign-up request details.
@@ -35,6 +39,14 @@ public class AuthServiceImpl implements AuthService {
         user.setUserRole(signUpRequest.getUserRole() != null ? signUpRequest.getUserRole() : UserRole.CUSTOMER); // Set role based on request or default to CUSTOMER
 
         User createdUser = userRepository.save(user);
+
+        Order order = new Order();
+        order.setAmount(0L);
+        order.setTotalAmount(0L);
+        order.setDiscount(0L);
+        order.setUser(createdUser);
+        order.setOrderStatus(OrderStatus.PENDING);
+        orderRepository.save(order);
 
         UserDto userDto = new UserDto();
         userDto.setId(createdUser.getId());

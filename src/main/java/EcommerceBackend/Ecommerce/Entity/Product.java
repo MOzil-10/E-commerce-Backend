@@ -28,6 +28,7 @@ public class Product {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Category category;
+    private String imageUrl;
 
     public ProductDto getDto() {
         ProductDto productDto = new ProductDto();
@@ -38,6 +39,7 @@ public class Product {
         productDto.setByteImage(imageData);
         productDto.setCategoryId(category.getId());
         productDto.setCategoryName(category.getName());
+        productDto.setImageUrl("/api/admin/product/" + id + "/image");
 
         return productDto;
     }
